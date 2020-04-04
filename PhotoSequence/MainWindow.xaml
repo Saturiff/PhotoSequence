@@ -12,8 +12,9 @@
         Width="auto" 
         Height="auto" 
         ResizeMode="NoResize">
-    <Grid>
-        <Image x:Name="img" Margin="0" MouseLeftButtonDown="Img_MouseLeftButtonDown"/>
-
+    
+    <Grid x:Name="G_Grid">
+        <Image x:Name="img0" MouseLeftButtonDown="Img_MouseLeftButtonDown"/>
+        <Image x:Name="img1" MouseLeftButtonDown="Img_MouseLeftButtonDown"/>
     </Grid>
 </Window>

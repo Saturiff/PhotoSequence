@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Timer = System.Windows.Forms.Timer;
 
 namespace PhotoSequence
 {
@@ -15,64 +11,18 @@ namespace PhotoSequence
         {
             InitializeComponent();
 
-            TrueMain();
+            imageWidgets = new RenderComponent(img0, img1);
+
+            int frameSpeed = 16; // 16.666..
+            Timer mainTimer = new Timer { Interval = frameSpeed };
+            mainTimer.Tick += MainTimer_Tick;
+            mainTimer.Start();
         }
 
-        private void TrueMain()
+        private RenderComponent imageWidgets;
+        private void MainTimer_Tick(object sender, EventArgs e)
         {
-            SaveEachImage();
-
-            Thread show = new Thread(DisplayEachImageLoop);
-            show.Start();
-        }
-
-        private void SaveEachImage()
-        {
-            string[] fileArray = Directory.GetFiles(@".\img\");
-            frameSpeed = 1000 / fileArray.Length;
-            for (int i = 0; i < fileArray.Length; i++)
-            using (FileStream fs = new FileStream(fileArray[i], FileMode.Open))
-            {
-                byte[] data = new byte[fs.Length];
-                fs.Read(data, 0, data.Length);
-                fs.Close();
-                imageList.Add(ByteToImage(data));
-            }
-        }
-
-        private void DisplayEachImageLoop()
-        {
-            while (true)
-            foreach (var image in imageList)
-            {
-                img.Dispatcher.Invoke(() => img.Source = image);
-                if (isRandomSpeed)
-                {
-                    cnt = (cnt < Math.PI) ? cnt + rnd.NextDouble() / 10 : 0;    // (rand / 10) -> 0.0###
-                    Thread.Sleep(frameSpeed - Convert.ToInt32(Math.Sin(cnt)) * 5);   // (Sin(0..PI) * 5) -> #.###
-                }
-                else Thread.Sleep(frameSpeed);
-            }
-        }
-
-        private readonly bool isRandomSpeed = true;
-        private double cnt = 0;
-        private int frameSpeed = 0; // 圖片數量決定每秒偵數
-        private Random rnd = new Random();
-        
-        private List<ImageSource> imageList = new List<ImageSource>();
-
-        public static ImageSource ByteToImage(byte[] imageData)
-        {
-            BitmapImage biImg = new BitmapImage();
-            MemoryStream ms = new MemoryStream(imageData);
-            biImg.BeginInit();
-            biImg.StreamSource = ms;
-            biImg.EndInit();
-
-            ImageSource imgSrc = biImg as ImageSource;
-
-            return imgSrc;
+            imageWidgets.NextImage();
         }
 
         private void Img_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => DragMove();
